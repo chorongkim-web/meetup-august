@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>8월의 모임</title>
+<meta property="og:title" content="8월의 모임" />
+<meta property="og:description" content="되는 날짜에 투표해주세요! 🗓️ (7월 31일 마감)" />
+<style>
+  :root{
+    --cream:#fffdf5;
+    --card:#ffffff;
+    --ink:#3a3733;
+    --sub:#8a8378;
+    --line:#efe9dc;
+    --gold:#c99a2e;
+    --point:#ff7a59;
+    --point-soft:#ffe7df;
+    --green:#28b487;
+    --blue:#5c8ad6;
+    --shadow:0 6px 20px rgba(80,60,30,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    background:linear-gradient(180deg,#eef6ff 0%,#fdf1f0 100%);
+    color:var(--ink);
+    line-height:1.6;
+    padding:0 0 48px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+
+  /* ===== Header ===== */
+  .hero{ text-align:center;padding:36px 16px 24px; }
+  .hero .emoji{font-size:38px;}
+  .hero h1{font-size:26px;font-weight:800;margin:6px 0 4px;letter-spacing:-.5px;}
+  .hero p{color:var(--sub);font-size:14px;}
+
+  /* ===== Section common ===== */
+  section{
+    background:var(--card);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    padding:22px 18px;
+    margin-bottom:20px;
+  }
+  .sec-title{ display:flex;align-items:center;gap:8px; font-size:17px;font-weight:800;margin-bottom:4px; }
+  .sec-desc{font-size:13px;color:var(--sub);margin-bottom:16px;}
+  .sec-desc b{color:var(--point);}
+
+  /* ===== Countdown ===== */
+  .countdown{
+    text-align:center;background:#fff4ec;border:1.5px solid #ffd9c9;color:#e5623f;
+    border-radius:14px;padding:11px 12px;font-size:14px;margin-bottom:16px;
+  }
+  .countdown b{font-weight:800;font-variant-numeric:tabular-nums;}
+  .countdown .dday{font-size:12px;opacity:.85;display:block;margin-bottom:2px;}
+  .countdown.closed{background:#f3eee6;border-color:#e2d9c8;color:#8a8378;}
+
+  /* ===== Date vote calendar ===== */
+  table.cal{width:100%;border-collapse:collapse;text-align:center;table-layout:fixed;}
+  table.cal th{ font-size:12px;color:var(--sub);font-weight:600;padding:6px 0; }
+  table.cal th.sun{color:#e06a6a;}
+  table.cal th.sat{color:var(--blue);}
+  table.cal td{ padding:3px; vertical-align:top; }
+  .daycell{
+    position:relative;border-radius:12px;padding:6px 0 5px;min-height:52px;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;
+  }
+  .daycell.empty{visibility:hidden;}
+  .daycell.disabled{color:#cfc8ba;}
+  .daycell.votable{
+    cursor:pointer;background:#f8f4ea;border:2px solid transparent;transition:.12s;
+  }
+  .daycell.votable:active{transform:scale(.96);}
+  .daycell.votable.selected{
+    background:var(--point-soft);border-color:var(--point);
+  }
+  .daycell .dnum{font-size:15px;font-weight:700;line-height:1;}
+  .daycell.votable.sun .dnum{color:#e06a6a;}
+  .daycell.votable.sat .dnum{color:var(--blue);}
+  .daycell .dvotes{
+    font-size:10.5px;font-weight:700;color:var(--point);line-height:1;
+    min-height:12px;
+  }
+  .daycell .crown{position:absolute;top:-9px;font-size:15px;}
+  .daycell .mycheck{
+    position:absolute;top:2px;right:4px;font-size:10px;color:var(--point);font-weight:900;display:none;
+  }
+  .daycell.selected .mycheck{display:block;}
+
+  .vote-hint{ text-align:center;color:#e0866a;font-size:12px;margin:12px 0 4px;min-height:16px; }
+  .submit-btn{
+    display:block;width:100%;background:var(--point);color:#fff;border:none;
+    border-radius:16px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;
+    margin-top:6px;transition:.15s;
+  }
+  .submit-btn:active{transform:scale(.99);}
+  .submit-btn:disabled{opacity:.4;cursor:default;}
+  .submit-btn.edit{background:#fff;color:var(--point);border:2px solid var(--point);}
+  .my-pick{ text-align:center;font-size:13.5px;color:var(--green);font-weight:700;margin:8px 0 10px; }
+  .reset-btn{
+    display:block;margin:14px auto 0;background:none;border:none;
+    color:var(--sub);font-size:12px;text-decoration:underline;cursor:pointer;
+  }
+  .rank-line{ text-align:center;font-size:13px;color:var(--sub);margin-top:10px; }
+  .rank-line b{color:var(--ink);}
+  .note{
+    font-size:11.5px;color:#b0a892;background:#faf6ec;border-radius:12px;
+    padding:10px 12px;margin-top:14px;line-height:1.5;
+  }
+
+  /* ===== Restaurant / place cards ===== */
+  .resto{ border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:16px; }
+  .resto:last-child{margin-bottom:0;}
+  .photos{ display:grid;grid-template-columns:2fr 1fr 1fr;gap:3px;height:170px;background:#f4efe4; }
+  .photos .ph{ position:relative;overflow:hidden;background:#f0e9da; }
+  .photos img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
+  .ph-fallback{
+    width:100%;height:100%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:4px;
+    background:repeating-linear-gradient(135deg,#f6efe1,#f6efe1 10px,#f1e9d8 10px,#f1e9d8 20px);
+    color:#c3b89c;font-size:11px;font-weight:600;text-align:center;
+  }
+  .ph-fallback .ic{font-size:22px;}
+  .resto-body{padding:14px 16px 16px;}
+  .resto-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .resto-name{font-size:17px;font-weight:800;}
+  .resto-cat{font-size:12px;color:var(--sub);margin-top:2px;}
+  .rating{
+    flex-shrink:0;font-size:13px;font-weight:700;color:var(--gold);
+    background:#fbf3dd;border-radius:10px;padding:4px 9px;white-space:nowrap;
+  }
+  .naver-btn{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    margin-top:14px;width:100%;
+    background:#03c75a;color:#fff;text-decoration:none;
+    font-size:14px;font-weight:700;border-radius:12px;padding:11px;
+  }
+  .naver-btn:active{background:#02a94c;}
+
+  .place-empty{
+    text-align:center;color:#b0a892;background:#faf6ec;border-radius:16px;
+    padding:28px 18px;font-size:14px;line-height:1.7;
+  }
+  .place-empty .big{font-size:30px;display:block;margin-bottom:6px;}
+
+  /* ===== Place vote ===== */
+  .vote-opt{
+    border:2px solid var(--line);border-radius:16px;
+    padding:14px 16px;margin-bottom:12px;cursor:pointer;
+    transition:.15s;position:relative;overflow:hidden;background:#fff;
+  }
+  .vote-opt:active{transform:scale(.99);}
+  .vote-opt.selected{border-color:var(--point);background:var(--point-soft);}
+  .vote-fill{
+    position:absolute;left:0;top:0;bottom:0;width:0;
+    background:rgba(255,122,89,.14);transition:width .5s ease;z-index:0;
+  }
+  .vote-row{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;}
+  .vote-name{font-size:15px;font-weight:700;}
+  .vote-name .sub{font-size:11px;color:var(--sub);font-weight:500;margin-left:4px;}
+  .vote-stat{font-size:13px;font-weight:800;color:var(--point);flex-shrink:0;}
+  .vote-check{
+    display:inline-block;width:20px;height:20px;border-radius:50%;
+    border:2px solid #d8d0c0;margin-right:10px;vertical-align:middle;flex-shrink:0;
+    position:relative;transition:.15s;
+  }
+  .vote-opt.selected .vote-check{background:var(--point);border-color:var(--point);}
+  .vote-opt.selected .vote-check::after{
+    content:"\2713";color:#fff;font-size:12px;font-weight:800;
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  }
+  .vote-left{display:flex;align-items:center;}
+  .vote-opt.locked{cursor:default;}
+
+  footer{text-align:center;color:#c3bba9;font-size:12px;padding:8px 0;}
+
+  /* ===== Lightbox ===== */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(0,0,0,.92);
+    display:none;align-items:center;justify-content:center;
+    z-index:999;padding:24px;cursor:zoom-out;opacity:0;transition:opacity .2s ease;
+  }
+  .lightbox.show{display:flex;opacity:1;}
+  .lightbox img{ max-width:100%;max-height:100%;border-radius:12px; box-shadow:0 12px 44px rgba(0,0,0,.6); }
+  .lightbox .lb-close{
+    position:absolute;top:16px;right:22px;color:#fff;
+    font-size:38px;font-weight:300;line-height:1;cursor:pointer;text-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="emoji">🗓️✨</div>
+    <h1>8월의 모임</h1>
+    <p>되는 날짜에 투표해주세요! 많은 사람이 되는 날로 정해요 😊</p>
+  </div>
+
+  <!-- ===== 1. 날짜 투표 ===== -->
+  <section>
+    <div class="sec-title">🗓️ 언제 만날까요?</div>
+    <div class="sec-desc"><b>참석 가능한 날짜를 모두</b> 눌러주세요. (여러 개 선택 OK)</div>
+
+    <div class="countdown" id="countdown"></div>
+
+    <table class="cal">
+      <thead>
+        <tr>
+          <th class="sun">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th class="sat">토</th>
+        </tr>
+      </thead>
+      <tbody id="cal-body"></tbody>
+    </table>
+
+    <div class="vote-hint" id="date-hint"></div>
+    <div id="date-action"></div>
+
+    <div class="rank-line" id="date-rank"></div>
+    <button class="reset-btn" id="date-reset" onclick="resetDates()">내 날짜 투표 취소하기</button>
+
+    <div class="note">
+      💡 <b>실시간 투표</b>예요! 되는 날을 모두 고르고 <b>날짜 투표 완료</b>를 누르면
+      모두의 화면에 바로 반영돼요. 👑 표시가 지금 가장 많이 겹치는 날이에요.
+    </div>
+  </section>
+
+  <!-- ===== 2. 장소 후보 ===== -->
+  <section>
+    <div class="sec-title">🍴 어디로 갈까요?</div>
+    <div class="sec-desc">장소 후보가 정해지면 여기에 올라와요.</div>
+    <div id="place-cards"></div>
+  </section>
+
+  <!-- ===== 3. 장소 투표 ===== -->
+  <section id="place-vote-sec">
+    <div class="sec-title">🗳️ 가고 싶은 곳 투표</div>
+    <div class="sec-desc">가고 싶은 곳을 <b>최대 2곳</b>까지 고르고 '투표 완료'를 눌러주세요.</div>
+    <div id="place-vote-list"></div>
+    <div class="vote-hint" id="place-hint"></div>
+    <div id="place-action"></div>
+    <div class="rank-line">지금까지 <b id="place-total">0</b>표</div>
+    <button class="reset-btn" id="place-reset" onclick="resetPlace()">내 장소 투표 취소하기</button>
+  </section>
+
+</div>
+
+<!-- 사진 확대 오버레이 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lb-close">&times;</span>
+  <img id="lb-img" src="" alt="확대 사진" />
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  /* ---------- Firebase 초기화 (지난번 저장소 재사용, 데이터 칸은 새로) ---------- */
+  firebase.initializeApp({
+    apiKey: "AIzaSyCU2mD7SgW7KGFi7aiX_GUd62KXPCOr5BQ",
+    authDomain: "meetup0729.firebaseapp.com",
+    databaseURL: "https://meetup0729-default-rtdb.firebaseio.com",
+    projectId: "meetup0729",
+    storageBucket: "meetup0729.firebasestorage.app",
+    messagingSenderId: "727479660583",
+    appId: "1:727479660583:web:555b1ea169acfa38115e02"
+  });
+  var db = firebase.database();
+
+  /* ---------- 공통: 마감 ---------- */
+  // 마감: 2026년 7월 31일 23:59:59 (월은 0부터라 6=7월)
+  var DEADLINE = new Date(2026, 6, 31, 23, 59, 59);
+  function isClosed(){ return new Date().getTime() > DEADLINE.getTime(); }
+
+  /* =========================================================
+     A. 날짜 투표 (8월 1일 ~ 14일, 되는 날 여러 개 선택)
+     ========================================================= */
+  var AUG_FIRST_DOW = 6;     // 2026-08-01 = 토요일
+  var AUG_DAYS = 31;
+  var VOTE_FROM = 1, VOTE_TO = 14;   // 투표 가능 범위
+  var DATE_MY_KEY = "meetup_aug_mydates";
+  var dateVotesRef = db.ref("dateVotes");   // 날짜별 집계 (d1..d14)
+  var dateCounts = {};                      // 실시간 집계
+
+  function loadMyDates(){
+    try{ return JSON.parse(localStorage.getItem(DATE_MY_KEY))||[]; }catch(e){ return []; }
+  }
+  var myDates = loadMyDates();          // 확정된 내 날짜 (["d3","d8"])
+  var pendingDates = myDates.slice();   // 편집 중
+  var dateSubmitted = myDates.length>0;
+
+  function dHint(msg){ var h=document.getElementById('date-hint'); if(h) h.textContent=msg||''; }
+  function dInc(c){ return (c||0)+1; }
+  function dDec(c){ c=(c||0)-1; return c<0?0:c; }
+
+  function toggleDate(day){
+    if(isClosed() || dateSubmitted) return;
+    var key = "d"+day;
+    var i = pendingDates.indexOf(key);
+    if(i>=0){ pendingDates.splice(i,1); }
+    else{ pendingDates.push(key); }
+    dHint('');
+    drawDates();
+  }
+
+  function submitDates(){
+    if(isClosed() || pendingDates.length===0) return;
+    var removeList = myDates.filter(function(k){ return pendingDates.indexOf(k)<0; });
+    var addList = pendingDates.filter(function(k){ return myDates.indexOf(k)<0; });
+    removeList.forEach(function(k){ db.ref("dateVotes/"+k).transaction(dDec); });
+    addList.forEach(function(k){ db.ref("dateVotes/"+k).transaction(dInc); });
+    myDates = pendingDates.slice();
+    localStorage.setItem(DATE_MY_KEY, JSON.stringify(myDates));
+    dateSubmitted = true; dHint('');
+    drawDates();
+  }
+
+  function editDates(){
+    if(isClosed()) return;
+    dateSubmitted = false;
+    pendingDates = myDates.slice();
+    dHint(''); drawDates();
+  }
+
+  function resetDates(){
+    if(isClosed()) return;
+    myDates.forEach(function(k){ db.ref("dateVotes/"+k).transaction(dDec); });
+    myDates=[]; pendingDates=[]; dateSubmitted=false;
+    localStorage.removeItem(DATE_MY_KEY);
+    dHint(''); drawDates();
+  }
+
+  function drawDates(){
+    var body = document.getElementById('cal-body');
+    var mine = dateSubmitted ? myDates : pendingDates;
+
+    // 최다 득표 날짜(들) 찾기
+    var maxCount = 0;
+    for(var d=VOTE_FROM; d<=VOTE_TO; d++){
+      var c = dateCounts["d"+d]||0;
+      if(c>maxCount) maxCount=c;
+    }
+
+    // 달력 셀 구성
+    var cells=[];
+    for(var i=0;i<AUG_FIRST_DOW;i++) cells.push(null);
+    for(var day=1;day<=AUG_DAYS;day++) cells.push(day);
+
+    var html='';
+    for(var i=0;i<cells.length;i++){
+      if(i%7===0) html+='<tr>';
+      var day = cells[i];
+      var colCls = (i%7===0)?'sun':((i%7===6)?'sat':'');
+      if(day===null){
+        html+='<td><div class="daycell empty"></div></td>';
+      }else if(day>=VOTE_FROM && day<=VOTE_TO){
+        var key="d"+day;
+        var c = dateCounts[key]||0;
+        var sel = (mine.indexOf(key)>=0)?' selected':'';
+        var crown = (maxCount>0 && c===maxCount) ? '<span class="crown">👑</span>' : '';
+        var votesTxt = c>0 ? c+'명' : '';
+        html+='<td><div class="daycell votable '+colCls+sel+'" onclick="toggleDate('+day+')">'+
+                crown+
+                '<span class="mycheck">✓</span>'+
+                '<span class="dnum">'+day+'</span>'+
+                '<span class="dvotes">'+votesTxt+'</span>'+
+              '</div></td>';
+      }else{
+        html+='<td><div class="daycell disabled '+colCls+'"><span class="dnum">'+day+'</span></div></td>';
+      }
+      if(i%7===6) html+='</tr>';
+    }
+    if(cells.length%7!==0) html+='</tr>';
+    body.innerHTML=html;
+
+    // 액션 영역
+    var act = document.getElementById('date-action');
+    var resetBtn = document.getElementById('date-reset');
+    if(isClosed()){
+      var picked = myDates.length ? myDates.map(function(k){return k.slice(1)+'일';}).join(', ') : '';
+      act.innerHTML='<div class="my-pick">🔒 투표가 마감되었어요. 최종 결과예요!'+
+        (picked?' (내 선택: '+picked+')':'')+'</div>';
+      if(resetBtn) resetBtn.style.display='none';
+    }else if(dateSubmitted){
+      var picks = myDates.map(function(k){return k.slice(1)+'일';}).join(', ');
+      act.innerHTML=
+        '<div class="my-pick">✅ 날짜 투표 완료! 내가 되는 날: '+(picks||'-')+'</div>'+
+        '<button class="submit-btn edit" onclick="editDates()">✏️ 다시 선택하기</button>';
+      if(resetBtn) resetBtn.style.display='block';
+    }else{
+      var n = pendingDates.length;
+      act.innerHTML=
+        '<button class="submit-btn" onclick="submitDates()"'+(n===0?' disabled':'')+'>'+
+          '날짜 투표 완료'+(n>0?' ('+n+'일 선택)':'')+
+        '</button>';
+      if(resetBtn) resetBtn.style.display='block';
+    }
+
+    // 순위 안내
+    var rank = document.getElementById('date-rank');
+    if(maxCount>0){
+      var best=[];
+      for(var d=VOTE_FROM; d<=VOTE_TO; d++){
+        if((dateCounts["d"+d]||0)===maxCount) best.push(d+'일');
+      }
+      rank.innerHTML='👑 지금 1위: <b>'+best.join(', ')+'</b> ('+maxCount+'명)';
+    }else{
+      rank.innerHTML='아직 투표가 없어요. 첫 투표를 해보세요!';
+    }
+  }
+
+  dateVotesRef.on('value', function(snap){ dateCounts = snap.val()||{}; drawDates(); });
+
+  /* =========================================================
+     B. 장소 투표 (후보가 정해지면 PLACES 배열만 채우면 됨)
+     ========================================================= */
+  // 👇 가게가 정해지면 여기에 채워요. (지금은 비어 있어서 "준비중"으로 표시)
+  //   예시:
+  //   { key:'woothender', name:'우텐더 정자점', cat:'정자 · 한우 오마카세',
+  //     rating:'4.8', naver:'https://naver.me/xxxx',
+  //     photos:['images/woothender-1.jpg','images/woothender-2.jpg','images/woothender-3.jpg'] }
+  var PLACES = [
+    { key:'palbok', name:'팔복',       cat:'판교 · 중식',      rating:'', naver:'https://naver.me/GWe2U1UG', photos:['images/palbok-1.webp','images/palbok-2.webp'] },
+    { key:'udaepo', name:'우대포',     cat:'판교 · 소갈비살',  rating:'', naver:'https://naver.me/Gn0yfsqe', photos:['images/udaepo-1.webp','images/udaepo-2.webp'] },
+    { key:'paydim', name:'페이딤',     cat:'판교 · 중식',      rating:'4.7', naver:'https://naver.me/GQ1liqk4', photos:['images/paydim-1.webp','images/paydim-2.webp'] },
+    { key:'miga',   name:'미가 양고기', cat:'수지 · 양고기·중식', rating:'', naver:'https://naver.me/FdCxzSol', photos:['images/miga-1.webp','images/miga-2.webp'] }
+  ];
+
+  var MAX_PICK = 2;
+  var PLACE_MY_KEY = "meetup_aug_myplaces";
+  var placeVotesRef = db.ref("placeVotes");
+  var placeCounts = {};
+
+  function loadMyPlaces(){
+    try{ return JSON.parse(localStorage.getItem(PLACE_MY_KEY))||[]; }catch(e){ return []; }
+  }
+  var myPlaces = loadMyPlaces();
+  var pendingPlaces = myPlaces.slice();
+  var placeSubmitted = myPlaces.length>0;
+
+  function pHint(msg){ var h=document.getElementById('place-hint'); if(h) h.textContent=msg||''; }
+  function pInc(c){ return (c||0)+1; }
+  function pDec(c){ c=(c||0)-1; return c<0?0:c; }
+  function placeNameOf(key){
+    for(var i=0;i<PLACES.length;i++){ if(PLACES[i].key===key) return PLACES[i].name; }
+    return key;
+  }
+
+  // 장소 후보 카드 렌더링
+  function renderPlaceCards(){
+    var box = document.getElementById('place-cards');
+    if(PLACES.length===0){
+      box.innerHTML='<div class="place-empty"><span class="big">🍽️</span>'+
+        '장소 후보를 준비하고 있어요.<br>정해지면 여기에서 사진과 함께 확인할 수 있어요!</div>';
+      document.getElementById('place-vote-sec').style.display='none';
+      return;
+    }
+    document.getElementById('place-vote-sec').style.display='block';
+    var html='';
+    for(var i=0;i<PLACES.length;i++){
+      var p=PLACES[i];
+      var photoHtml='';
+      var photos = p.photos && p.photos.length ? p.photos : [];
+      var gridCols;
+      if(photos.length===0){
+        gridCols='2fr 1fr 1fr';
+        for(var j=0;j<3;j++){
+          photoHtml+='<div class="ph"><div class="ph-fallback"><div class="ic">📷</div><div>사진 준비중</div></div></div>';
+        }
+      }else{
+        gridCols = (photos.length===1)?'1fr':((photos.length===2)?'1fr 1fr':'2fr 1fr 1fr');
+        for(var j=0;j<photos.length;j++){
+          photoHtml+='<div class="ph"><img src="'+photos[j]+'" alt="'+p.name+' 사진'+(j+1)+'" onerror="ph(this)"></div>';
+        }
+      }
+      var naverBtn = p.naver ? '<a class="naver-btn" href="'+p.naver+'" target="_blank" rel="noopener">네이버에서 보기 →</a>' : '';
+      var ratingBadge = p.rating ? '<div class="rating">⭐ '+p.rating+'</div>' : '';
+      html+='<div class="resto">'+
+        '<div class="photos" style="grid-template-columns:'+gridCols+'">'+photoHtml+'</div>'+
+        '<div class="resto-body"><div class="resto-head"><div>'+
+          '<div class="resto-name">'+p.name+'</div>'+
+          '<div class="resto-cat">'+(p.cat||'')+'</div>'+
+        '</div>'+ratingBadge+'</div>'+naverBtn+'</div></div>';
+    }
+    box.innerHTML=html;
+    // 사진 클릭 확대
+    document.querySelectorAll('.photos img').forEach(function(img){
+      img.addEventListener('click', function(){ openLightbox(img.src); });
+    });
+  }
+
+  function togglePlace(key){
+    if(isClosed() || placeSubmitted) return;
+    var i=pendingPlaces.indexOf(key);
+    if(i>=0){ pendingPlaces.splice(i,1); pHint(''); }
+    else{
+      if(pendingPlaces.length>=MAX_PICK){ pHint('최대 '+MAX_PICK+'곳까지 고를 수 있어요'); return; }
+      pendingPlaces.push(key); pHint('');
+    }
+    drawPlaces();
+  }
+  function submitPlace(){
+    if(isClosed() || pendingPlaces.length===0) return;
+    var removeList=myPlaces.filter(function(k){ return pendingPlaces.indexOf(k)<0; });
+    var addList=pendingPlaces.filter(function(k){ return myPlaces.indexOf(k)<0; });
+    removeList.forEach(function(k){ db.ref("placeVotes/"+k).transaction(pDec); });
+    addList.forEach(function(k){ db.ref("placeVotes/"+k).transaction(pInc); });
+    myPlaces=pendingPlaces.slice();
+    localStorage.setItem(PLACE_MY_KEY, JSON.stringify(myPlaces));
+    placeSubmitted=true; pHint(''); drawPlaces();
+  }
+  function editPlace(){
+    if(isClosed()) return;
+    placeSubmitted=false; pendingPlaces=myPlaces.slice(); pHint(''); drawPlaces();
+  }
+  function resetPlace(){
+    if(isClosed()) return;
+    myPlaces.forEach(function(k){ db.ref("placeVotes/"+k).transaction(pDec); });
+    myPlaces=[]; pendingPlaces=[]; placeSubmitted=false;
+    localStorage.removeItem(PLACE_MY_KEY);
+    pHint(''); drawPlaces();
+  }
+
+  function drawPlaces(){
+    if(PLACES.length===0) return;
+    var counts=placeCounts||{};
+    var mine = placeSubmitted ? myPlaces : pendingPlaces;
+    var total=0;
+    PLACES.forEach(function(p){ total+=(counts[p.key]||0); });
+
+    var list=document.getElementById('place-vote-list');
+    list.innerHTML='';
+    PLACES.forEach(function(p){
+      var c=counts[p.key]||0;
+      var pct= total>0 ? Math.round(c/total*100) : 0;
+      var sel = (mine.indexOf(p.key)>=0)?' selected':'';
+      var div=document.createElement('div');
+      div.className='vote-opt'+sel+(placeSubmitted?' locked':'');
+      div.onclick=function(){ togglePlace(p.key); };
+      div.innerHTML=
+        '<div class="vote-fill" style="width:'+pct+'%"></div>'+
+        '<div class="vote-row">'+
+          '<div class="vote-left"><span class="vote-check"></span>'+
+            '<div><span class="vote-name">'+p.name+'<span class="sub">'+(p.cat||'')+'</span></span></div>'+
+          '</div>'+
+          '<div class="vote-stat">'+c+'표 · '+pct+'%</div>'+
+        '</div>';
+      list.appendChild(div);
+    });
+    document.getElementById('place-total').textContent=total;
+
+    var act=document.getElementById('place-action');
+    var resetBtn=document.getElementById('place-reset');
+    if(isClosed()){
+      var closedPick = myPlaces.length ? '내 선택: '+myPlaces.map(placeNameOf).join(', ') : '';
+      act.innerHTML='<div class="my-pick">🔒 투표가 마감되었어요. 최종 결과예요! '+
+        (closedPick?'('+closedPick+')':'')+'</div>';
+      if(resetBtn) resetBtn.style.display='none';
+    }else if(placeSubmitted){
+      var picks=myPlaces.map(placeNameOf).join(', ');
+      act.innerHTML=
+        '<div class="my-pick">✅ 투표 완료! 내 선택: '+(picks||'-')+'</div>'+
+        '<button class="submit-btn edit" onclick="editPlace()">✏️ 다시 선택하기</button>';
+      if(resetBtn) resetBtn.style.display='block';
+    }else{
+      var n=pendingPlaces.length;
+      act.innerHTML=
+        '<button class="submit-btn" onclick="submitPlace()"'+(n===0?' disabled':'')+'>'+
+          '투표 완료'+(n>0?' ('+n+'/'+MAX_PICK+')':'')+
+        '</button>';
+      if(resetBtn) resetBtn.style.display='block';
+    }
+  }
+
+  placeVotesRef.on('value', function(snap){ placeCounts = snap.val()||{}; drawPlaces(); });
+  renderPlaceCards();
+  drawPlaces();
+
+  /* ---------- 사진 라이트박스 ---------- */
+  function openLightbox(src){
+    var lb=document.getElementById('lightbox');
+    document.getElementById('lb-img').src=src;
+    lb.classList.add('show');
+  }
+  function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLightbox(); });
+
+  function ph(img){
+    var box=img.parentNode;
+    img.style.display='none';
+    if(box.querySelector('.ph-fallback')) return;
+    var f=document.createElement('div');
+    f.className='ph-fallback';
+    f.innerHTML='<div class="ic">📷</div><div>사진 준비중</div>';
+    box.appendChild(f);
+  }
+
+  /* ---------- 마감 카운트다운 ---------- */
+  var _wasClosed=false;
+  function tick(){
+    var el=document.getElementById('countdown');
+    if(!el) return;
+    var diff=DEADLINE.getTime()-new Date().getTime();
+    if(diff<=0){
+      el.className='countdown closed';
+      el.innerHTML='🔒 투표가 마감되었습니다 (7월 31일 마감)';
+      if(!_wasClosed){ _wasClosed=true; drawDates(); drawPlaces(); }
+      return;
+    }
+    var d=Math.floor(diff/86400000);
+    var h=Math.floor(diff%86400000/3600000);
+    var m=Math.floor(diff%3600000/60000);
+    var s=Math.floor(diff%60000/1000);
+    var pad=function(x){ return (x<10?'0':'')+x; };
+    el.innerHTML='<span class="dday">⏰ 투표 마감까지 (7월 31일 밤 12시)</span>'+
+      '<b>'+d+'일 '+pad(h)+':'+pad(m)+':'+pad(s)+'</b>';
+  }
+  setInterval(tick,1000); tick();
+</script>
+</body>
+</html>
