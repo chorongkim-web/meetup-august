@@ -262,6 +262,10 @@
   });
   var db = firebase.database();
 
+  /* ---------- 시연용: 내 투표 기록 초기화 ---------- */
+  localStorage.removeItem("meetup_dec_demo_mydates");
+  localStorage.removeItem("meetup_dec_demo_myplaces");
+
   /* ---------- 공통: 마감 ---------- */
   // 마감: 2026년 12월 20일 23:59:59 (월은 0부터라 11=12월)
   var DEADLINE = new Date(2026, 11, 20, 23, 59, 59);
