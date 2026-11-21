@@ -405,6 +405,7 @@
   }
 
   dateVotesRef.on('value', function(snap){ dateCounts = snap.val()||{}; drawDates(); });
+  drawDates();
 
   /* =========================================================
      B. 장소 투표 (후보가 정해지면 PLACES 배열만 채우면 됨)
