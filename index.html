@@ -390,7 +390,7 @@
       var n = pendingDates.length;
       act.innerHTML=
         '<button class="submit-btn" onclick="submitDates()"'+(n===0?' disabled':'')+'>'+
-          '날짜 투표 완료'+(n>0?' ('+n+'일 선택)':'')+
+          '날짜 투표하기'+(n>0?' ('+n+'일 선택)':'')+
         '</button>';
       if(resetBtn) resetBtn.style.display='block';
     }
@@ -566,7 +566,7 @@
       var n=pendingPlaces.length;
       act.innerHTML=
         '<button class="submit-btn" onclick="submitPlace()"'+(n===0?' disabled':'')+'>'+
-          '투표 완료'+(n>0?' ('+n+'/'+MAX_PICK+')':'')+
+          '장소 투표하기'+(n>0?' ('+n+'/'+MAX_PICK+')':'')+
         '</button>';
       if(resetBtn) resetBtn.style.display='block';
     }
