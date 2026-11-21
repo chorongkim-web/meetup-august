@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>8월의 모임</title>
-<meta property="og:title" content="8월의 모임" />
-<meta property="og:description" content="되는 날짜에 투표해주세요! 🗓️ (7월 31일 마감)" />
+<title>12월의 모임</title>
+<meta property="og:title" content="12월의 모임" />
+<meta property="og:description" content="되는 날짜에 투표해주세요! 🗓️ (12월 20일 마감)" />
 <style>
   :root{
     --cream:#fffdf5;
@@ -194,7 +194,7 @@
 <div class="wrap">
 
   <div class="hero">
-    <h1>8월의 모임</h1>
+    <h1>12월의 모임</h1>
     <p>되는 날짜에 투표해주세요! 많은 사람이 되는 날로 정해요</p>
   </div>
 
@@ -263,18 +263,18 @@
   var db = firebase.database();
 
   /* ---------- 공통: 마감 ---------- */
-  // 마감: 2026년 7월 31일 23:59:59 (월은 0부터라 6=7월)
-  var DEADLINE = new Date(2026, 6, 31, 23, 59, 59);
+  // 마감: 2026년 12월 20일 23:59:59 (월은 0부터라 11=12월)
+  var DEADLINE = new Date(2026, 11, 20, 23, 59, 59);
   function isClosed(){ return new Date().getTime() > DEADLINE.getTime(); }
 
   /* =========================================================
-     A. 날짜 투표 (8월 1일 ~ 14일, 되는 날 여러 개 선택)
+     A. 날짜 투표 (12월 1일 ~ 20일, 되는 날 여러 개 선택)
      ========================================================= */
-  var AUG_FIRST_DOW = 6;     // 2026-08-01 = 토요일
+  var AUG_FIRST_DOW = 2;     // 2026-12-01 = 화요일
   var AUG_DAYS = 31;
-  var VOTE_FROM = 1, VOTE_TO = 14;   // 투표 가능 범위
-  var DATE_MY_KEY = "meetup_aug_mydates";
-  var dateVotesRef = db.ref("dateVotes");   // 날짜별 집계 (d1..d14)
+  var VOTE_FROM = 1, VOTE_TO = 20;   // 투표 가능 범위
+  var DATE_MY_KEY = "meetup_dec_mydates";
+  var dateVotesRef = db.ref("dateVotesDec");   // 날짜별 집계 (d1..d14)
   var dateCounts = {};                      // 실시간 집계
 
   function loadMyDates(){
@@ -422,8 +422,8 @@
   ];
 
   var MAX_PICK = 2;
-  var PLACE_MY_KEY = "meetup_aug_myplaces";
-  var placeVotesRef = db.ref("placeVotes");
+  var PLACE_MY_KEY = "meetup_dec_myplaces";
+  var placeVotesRef = db.ref("placeVotesDec");
   var placeCounts = {};
 
   function loadMyPlaces(){
@@ -598,7 +598,7 @@
     var diff=DEADLINE.getTime()-new Date().getTime();
     if(diff<=0){
       el.className='countdown closed';
-      el.innerHTML='🔒 투표가 마감되었습니다 (7월 31일 마감)';
+      el.innerHTML='🔒 투표가 마감되었습니다 (12월 20일 마감)';
       if(!_wasClosed){ _wasClosed=true; drawDates(); drawPlaces(); }
       return;
     }
@@ -607,7 +607,7 @@
     var m=Math.floor(diff%3600000/60000);
     var s=Math.floor(diff%60000/1000);
     var pad=function(x){ return (x<10?'0':'')+x; };
-    el.innerHTML='<span class="dday">⏰ 투표 마감까지 (7월 31일 밤 12시)</span>'+
+    el.innerHTML='<span class="dday">⏰ 투표 마감까지 (12월 20일 밤 12시)</span>'+
       '<b>'+d+'일 '+pad(h)+':'+pad(m)+':'+pad(s)+'</b>';
   }
   setInterval(tick,1000); tick();
