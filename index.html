@@ -275,7 +275,7 @@
   var VOTE_FROM = 1, VOTE_TO = 20;   // 투표 가능 범위
   var DATE_MY_KEY = "meetup_dec_mydates";
   var dateVotesRef = db.ref("dateVotesDec");   // 날짜별 집계 (d1..d14)
-  var dateCounts = {};                      // 실시간 집계
+  var dateCounts = {d5:1,d6:2,d7:3,d12:1,d13:2,d14:2,d19:1,d20:1};  // 가상 참가자 포함
 
   function loadMyDates(){
     try{ return JSON.parse(localStorage.getItem(DATE_MY_KEY))||[]; }catch(e){ return []; }
@@ -425,7 +425,7 @@
   var MAX_PICK = 2;
   var PLACE_MY_KEY = "meetup_dec_myplaces";
   var placeVotesRef = db.ref("placeVotesDec");
-  var placeCounts = {};
+  var placeCounts = {palbok:1,udaepo:3,paydim:2,miga:1};  // 가상 참가자 포함
 
   function loadMyPlaces(){
     try{ return JSON.parse(localStorage.getItem(PLACE_MY_KEY))||[]; }catch(e){ return []; }
